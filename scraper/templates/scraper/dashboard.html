@@ -1,0 +1,156 @@
+{% extends 'scraper/base.html' %}
+{% block title %}Dashboard — WebScraper Pro{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ── Stat Cards ──────────────────────────────────────────────────────────── -->
+<div class="row g-3 mb-4">
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card">
+      <div class="stat-icon bg-primary bg-opacity-15 text-primary">
+        <i class="bi bi-collection"></i>
+      </div>
+      <div>
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Total Jobs</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card">
+      <div class="stat-icon bg-success bg-opacity-15 text-success">
+        <i class="bi bi-check-circle"></i>
+      </div>
+      <div>
+        <div class="stat-value">{{ stats.done }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card">
+      <div class="stat-icon bg-danger bg-opacity-15 text-danger">
+        <i class="bi bi-x-circle"></i>
+      </div>
+      <div>
+        <div class="stat-value">{{ stats.failed }}</div>
+        <div class="stat-label">Failed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="card stat-card">
+      <div class="stat-icon bg-warning bg-opacity-15 text-warning">
+        <i class="bi bi-arrow-repeat"></i>
+      </div>
+      <div>
+        <div class="stat-value">{{ stats.running }}</div>
+        <div class="stat-label">Running</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Jobs Table ──────────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-header d-flex align-items-center justify-content-between py-3 px-4">
+    <h6 class="mb-0 fw-semibold"><i class="bi bi-list-task me-2 text-primary"></i>Scrape Jobs</h6>
+    <a href="{% url 'job_create' %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>New Job
+    </a>
+  </div>
+
+  {% if jobs %}
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead>
+        <tr>
+          <th>Job Name</th>
+          <th>URL</th>
+          <th>Selector</th>
+          <th>Status</th>
+          <th>Results</th>
+          <th>Last Run</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in jobs %}
+        <tr>
+          <td class="fw-semibold">
+            <a href="{% url 'job_detail' job.pk %}" class="text-decoration-none text-white">
+              {{ job.name }}
+            </a>
+          </td>
+          <td>
+            <a href="{{ job.url }}" target="_blank" class="text-muted text-decoration-none small"
+               title="{{ job.url }}">
+              {{ job.url|truncatechars:45 }}
+              <i class="bi bi-box-arrow-up-right ms-1" style="font-size:.7rem"></i>
+            </a>
+          </td>
+          <td><span class="selector-badge">{{ job.css_selector|truncatechars:25 }}</span></td>
+          <td>
+            <span class="badge bg-{{ job.status_badge_class }}">
+              {% if job.status == 'running' %}<span class="spinner-border spinner-border-sm me-1" role="status"></span>{% endif %}
+              {{ job.get_status_display }}
+            </span>
+          </td>
+          <td>
+            <span class="badge bg-secondary">{{ job.result_count }}</span>
+          </td>
+          <td class="small text-muted">
+            {% if job.last_run_at %}
+              {{ job.last_run_at|date:"M d, Y H:i" }}
+            {% else %}
+              <span class="text-muted fst-italic">Never</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <div class="d-flex gap-1 justify-content-end">
+              <a href="{% url 'job_detail' job.pk %}" class="btn btn-sm btn-outline-secondary" title="View">
+                <i class="bi bi-eye"></i>
+              </a>
+              <form method="post" action="{% url 'job_run' job.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-success" title="Run"
+                        {% if job.status == 'running' %}disabled{% endif %}>
+                  <i class="bi bi-play-fill"></i>
+                </button>
+              </form>
+              <a href="{% url 'job_edit' job.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <form method="post" action="{% url 'job_delete' job.pk %}"
+                    onsubmit="return confirm('Delete job \'{{ job.name }}\'? This will also delete all results.')">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-danger" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-inbox" style="font-size:3rem;color:#334155;"></i>
+    <p class="text-muted mt-3 mb-1">No scrape jobs yet</p>
+    <a href="{% url 'job_create' %}" class="btn btn-primary mt-2">
+      <i class="bi bi-plus-lg me-1"></i>Create your first job
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

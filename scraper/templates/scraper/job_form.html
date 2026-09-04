@@ -1,0 +1,115 @@
+{% extends 'scraper/base.html' %}
+{% block title %}{{ action }} Job — WebScraper Pro{% endblock %}
+{% block page_title %}{{ action }} Scrape Job{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <div class="card">
+      <div class="card-header py-3 px-4">
+        <h6 class="mb-0 fw-semibold">
+          <i class="bi bi-{% if action == 'Create' %}plus-circle{% else %}pencil{% endif %} me-2 text-primary"></i>
+          {{ action }} Scrape Job
+        </h6>
+      </div>
+      <div class="card-body p-4">
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <!-- Job Name -->
+          <div class="mb-3">
+            <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold small text-muted text-uppercase">
+              Job Name
+            </label>
+            {{ form.name }}
+            {% if form.name.errors %}
+              <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+            {% endif %}
+            <div class="form-text">{{ form.name.help_text }}</div>
+          </div>
+
+          <!-- URL -->
+          <div class="mb-3">
+            <label for="{{ form.url.id_for_label }}" class="form-label fw-semibold small text-muted text-uppercase">
+              Target URL
+            </label>
+            {{ form.url }}
+            {% if form.url.errors %}
+              <div class="text-danger small mt-1">{{ form.url.errors.0 }}</div>
+            {% endif %}
+            <div class="form-text">{{ form.url.help_text }}</div>
+          </div>
+
+          <!-- CSS Selector + Extract -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-8">
+              <label for="{{ form.css_selector.id_for_label }}" class="form-label fw-semibold small text-muted text-uppercase">
+                CSS Selector
+              </label>
+              {{ form.css_selector }}
+              {% if form.css_selector.errors %}
+                <div class="text-danger small mt-1">{{ form.css_selector.errors.0 }}</div>
+              {% endif %}
+              <div class="form-text">{{ form.css_selector.help_text }}</div>
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.extract_attribute.id_for_label }}" class="form-label fw-semibold small text-muted text-uppercase">
+                Extract
+              </label>
+              {{ form.extract_attribute }}
+              {% if form.extract_attribute.errors %}
+                <div class="text-danger small mt-1">{{ form.extract_attribute.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Custom Headers -->
+          <div class="mb-4">
+            <label for="{{ form.headers.id_for_label }}" class="form-label fw-semibold small text-muted text-uppercase">
+              Custom Headers <span class="text-muted fw-normal">(optional)</span>
+            </label>
+            {{ form.headers }}
+            {% if form.headers.errors %}
+              <div class="text-danger small mt-1">{{ form.headers.errors.0 }}</div>
+            {% endif %}
+            <div class="form-text">{{ form.headers.help_text }}</div>
+          </div>
+
+          <!-- Selector reference card -->
+          <div class="alert alert-secondary small mb-4">
+            <strong><i class="bi bi-lightbulb me-1 text-warning"></i>CSS Selector Quick Reference</strong>
+            <div class="row mt-2 g-2">
+              <div class="col-sm-6">
+                <code>h1, h2, h3</code> — headings<br>
+                <code>.class-name</code> — by class<br>
+                <code>#element-id</code> — by ID
+              </div>
+              <div class="col-sm-6">
+                <code>a[href]</code> — all links<br>
+                <code>ul > li</code> — list items<br>
+                <code>.card .title</code> — nested
+              </div>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-{% if action == 'Create' %}plus-lg{% else %}check-lg{% endif %} me-1"></i>
+              {{ action }} Job
+            </button>
+            <a href="{% if job %}{% url 'job_detail' job.pk %}{% else %}{% url 'dashboard' %}{% endif %}"
+               class="btn btn-outline-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
