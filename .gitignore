@@ -2,3 +2,6 @@ vens/
 __pycache__/ 
 .env 
 *.pyc 
+venv/ 
+.idea/ 
+db.sqlite3 
